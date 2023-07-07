@@ -32,7 +32,7 @@ class battery_c():
             self.remainecapacity = b.RemainingCapacity
             # print 'Active:            ' + str(b.Active)
             # print 'Critical:          ' + str(b.Critical)
-            self.percent = round( (self.remainecapacity/self.full)*100, 2)
+            self.percent = round( (self.remainecapacity/self.full)*100, 1)
             break
 
     def label(self):
@@ -41,32 +41,10 @@ class battery_c():
         return str  # label str
 
 
+
 battery = battery_c()
 
-def F1():
-    # batts = t.ExecQuery('Select * from BatteryFullChargedCapacity')
-    # for i, b in enumerate(batts):
-    #     print ('Battery %d Fully Charged Capacity: %d mWh' % 
-    #         (i, b.FullChargedCapacity))
 
-    batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
-    
-    for i, b in enumerate(batts):
-        return str(b.DischargeRate/1000)
-        # print '\nBattery %d ***************' % i
-        # print 'Tag:               ' + str(b.Tag)
-        # print 'Name:              ' + b.InstanceName
-
-        # print 'PowerOnline:       ' + str(b.PowerOnline)
-        # print 'Discharging:       ' + str(b.Discharging)
-        # print 'Charging:          ' + str(b.Charging)
-        # print 'Voltage:           ' + str(b.Voltage)
-        # print 'DischargeRate:     ' + str(b.DischargeRate)
-        # print 'ChargeRate:        ' + str(b.ChargeRate)
-        # print 'RemainingCapacity: ' + str(b.RemainingCapacity)
-        # print 'Active:            ' + str(b.Active)
-        # print 'Critical:          ' + str(b.Critical)
-    
 
 def add_window_to_alt_tab():
     # Получаем хэндл окна
@@ -79,11 +57,13 @@ def add_window_to_alt_tab():
     extended_style = extended_style | WS_EX_APPWINDOW
     extended_style = extended_style & ~WS_EX_TOOLWINDOW
     ctypes.windll.user32.SetWindowLongPtrW(hwnd, GWL_EXSTYLE, extended_style)
+    # Изменяем стиль окна, чтобы скрыть иконку из панели задач
+    WS_EX_TOOLWINDOW = 0x00000080
+    extended_style = ctypes.windll.user32.GetWindowLongPtrW(hwnd, ctypes.c_int(-20))
+    extended_style = extended_style | WS_EX_TOOLWINDOW
+    ctypes.windll.user32.SetWindowLongPtrW(hwnd, ctypes.c_int(-20), extended_style)
 
 
-#def F1():
-    # Ваш код для функции F1
-#    return "Привет, мир!"
 
 def show_context_menu(event):
     context_menu.post(event.x_root, event.y_root)
@@ -91,6 +71,7 @@ def show_context_menu(event):
 def move_window(event):
     root.geometry(f"+{event.x_root - root_width // 2}+{event.y_root - root_height // 2}")
     save_window_config()
+    add_window_to_alt_tab()
 
 
 def changetop():
@@ -109,18 +90,18 @@ label = tk.Label(root, text="", width=20, height=5)  # Создаем метку
 label.configure(bg="black", fg="white")
 label.pack()
 
-# Создаем контекстное меню
-
+# Создаем контекстное меню 
 context_menu = tk.Menu(root, tearoff=0)
 context_menu.add_command(label="Поверх всех окон", command=changetop)
 context_menu.add_command(label="Пункт 2")
-context_menu.add_command(label="Пункт 3")
+context_menu.add_command(label="exit", command=root.destroy)
 
+# binding mouse buttons
 root.bind("<Button-3>", show_context_menu)  # При нажатии правой кнопкой мыши показываем контекстное меню
 root.bind("<ButtonPress-1>", lambda event: root.geometry(f"+{event.x_root - root_width // 2}+{event.y_root - root_height // 2}"))
 root.bind("<B1-Motion>", move_window)
 
-
+# define start executions
 def update_label():
     label.config(text=battery.label())
     root.after(1000, update_label)  # Вызываем функцию каждую секунду
@@ -129,7 +110,7 @@ update_label()
 root.after(100, add_window_to_alt_tab)
 
 
-#========================= config +++++++++++++++++++++++
+# save and load config
 CONFIG_FILE = 'battery.cfg'
 def save_window_config():
     config = {
