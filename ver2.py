@@ -104,7 +104,8 @@ root.bind("<B1-Motion>", move_window)
 # define start executions
 def update_label():
     label.config(text=battery.label())
-    root.after(1000, update_label)  # Вызываем функцию каждую секунду
+    add_window_to_alt_tab()
+    root.after(100, update_label)  # Вызываем функцию каждую 1/10 sec
 update_label()
 
 root.after(100, add_window_to_alt_tab)
