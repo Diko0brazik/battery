@@ -90,10 +90,29 @@ label = tk.Label(root, text="", width=20, height=5)  # Создаем метку
 label.configure(bg="black", fg="white")
 label.pack()
 
+
+
+# define start executions
+ms=500
+def update_label():
+    label.config(text=battery.label())
+    #add_window_to_alt_tab()
+    root.after(ms, update_label)  # Вызываем функцию каждую 1/10 sec
+
+def ms100():
+    global ms
+    ms=100
+    update_label()
+def ms500():
+    global ms
+    ms=500
+    update_label()
+
 # Создаем контекстное меню 
 context_menu = tk.Menu(root, tearoff=0)
 context_menu.add_command(label="Поверх всех окон", command=changetop)
-context_menu.add_command(label="Пункт 2")
+context_menu.add_command(label="every 100ms", command=ms100)
+context_menu.add_command(label="every 500ms", command=ms500)
 context_menu.add_command(label="exit", command=root.destroy)
 
 # binding mouse buttons
@@ -101,14 +120,9 @@ root.bind("<Button-3>", show_context_menu)  # При нажатии правой
 root.bind("<ButtonPress-1>", lambda event: root.geometry(f"+{event.x_root - root_width // 2}+{event.y_root - root_height // 2}"))
 root.bind("<B1-Motion>", move_window)
 
-# define start executions
-def update_label():
-    label.config(text=battery.label())
-    add_window_to_alt_tab()
-    root.after(100, update_label)  # Вызываем функцию каждую 1/10 sec
-update_label()
 
-root.after(100, add_window_to_alt_tab)
+update_label()
+#root.after(100, add_window_to_alt_tab)
 
 
 # save and load config
